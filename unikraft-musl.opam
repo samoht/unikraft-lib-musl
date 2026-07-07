@@ -12,6 +12,7 @@ install: [
   ["rm" "-rf" ".github"]
   ["cp" "-r" "." "%{_:lib}%"]
 ]
+remove: [ ["rm" "-rf" "%{_:lib}%"] ]
 dev-repo: "git+https://github.com/unikraft/lib-musl.git"
 extra-source "musl-1.2.3.tar.gz" {
   src: "https://www.musl-libc.org/releases/musl-1.2.3.tar.gz"
