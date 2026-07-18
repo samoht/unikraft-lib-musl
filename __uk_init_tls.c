@@ -215,10 +215,20 @@ int uk_thread_uktcb_init(struct uk_thread *thread, void *tcb)
 	 */
 	memset(td->tsd, 0, __uk_tsd_size);
 	td->locale = &libc.global_locale;
-	td->next = self->next;
-	td->prev = self;
-	td->next->prev = td;
-	td->prev->next = td;
+	if (self && self->next) {
+		/* Link into the current thread's circular list. */
+		td->next = self->next;
+		td->prev = self;
+		td->next->prev = td;
+		td->prev->next = td;
+	} else {
+		/* No initialised thread list on this CPU yet: a secondary lcpu
+		 * bringing up its first scheduler has no main-thread pthread, so
+		 * pthread_self()'s links are NULL. Start a self-circular list so
+		 * this and later threads on the CPU link consistently instead of
+		 * writing through a NULL next/prev. */
+		td->next = td->prev = td;
+	}
 
 	return 0;
 }
